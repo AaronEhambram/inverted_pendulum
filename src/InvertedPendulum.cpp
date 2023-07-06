@@ -22,6 +22,11 @@ void InvertedPendulum::setForce(const double& f)
   F = f; 
 }
 
+void InvertedPendulum::setDisturbanceForce(const double& s)
+{
+  S = s; 
+}
+
 void InvertedPendulum::initialize(const std::vector<double>& x0)
 {
   state = x0; 
@@ -34,11 +39,11 @@ void InvertedPendulum::operator()(const std::vector<double> &x, std::vector<doub
   */
  std::vector<double> x_ = x; 
   
-  dxdt[0] = x_[1];
+  dxdt[0] = x_[1]; // x'
   dxdt[2] = x_[3]; // theta'
   double m2 = pow(m,2);
   double l2 = pow(l,2); 
-  double nom = F - b*x_[1] + m*l*pow(x_[3],2)*sin(x_[2]) + m2*g*l2/(I+m*l2)*cos(x_[2])*sin(x_[2]) + b_rot*m*l/(I+m*l2)*x_[3]*cos(x_[2]); 
+  double nom = F - b*x_[1] + m*l*pow(x_[3],2)*sin(x_[2]) + S*cos(x_[2]) + m2*g*l2/(I+m*l2)*cos(x_[2])*sin(x_[2]) + b_rot*m*l/(I+m*l2)*x_[3]*cos(x_[2]) - m*l*cos(x_[2])/(I+m*l2)*2*S*l; 
   double denom = M + m - m2*l2/(I+m*l2)*pow(cos(x_[2]),2); 
 
   // in case of collision
@@ -67,7 +72,7 @@ void InvertedPendulum::operator()(const std::vector<double> &x, std::vector<doub
   
 
   dxdt[1] = nom/denom; // x''
-  dxdt[3] = -m*l/(I+m*l2) * dxdt[1] * cos(x_[2]) - m*g*l/(I+m*l2) * sin(x_[2]) - b_rot/(I+m*l2)*x_[3]; // theta''
+  dxdt[3] = -m*l/(I+m*l2) * dxdt[1] * cos(x_[2]) - m*g*l/(I+m*l2) * sin(x_[2]) - b_rot/(I+m*l2)*x_[3] + 2*S*l/(I+m*l2); // theta''
 
   
 }

@@ -8,6 +8,7 @@ class InvertedPendulum
   public:
   InvertedPendulum(); 
   void setForce(const double& f);
+  void setDisturbanceForce(const double& s);
   void initialize(const std::vector<double>& x0);  
   void simulate(double dt); 
   // defines the ordinary differential equation: x' = f(x) 
@@ -26,6 +27,7 @@ class InvertedPendulum
   double g = 9.81; // gravity
   double F = 0.0; // Force on the cart
   double l_track = 1.0; // length of the track the cart is mounted on
+  double S = 0.0; // Disturbance force
   WallCollisionModel wall_collision_model = ELASTIC_COLLISION;
   double time_step_length; 
 
