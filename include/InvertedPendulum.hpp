@@ -1,5 +1,6 @@
 #include <vector>
 #include <thread>
+#include <mutex>
 #include "opencv2/core.hpp"
 
 class InvertedPendulum
@@ -36,6 +37,10 @@ class InvertedPendulum
 
   // model ok check -> only simulate if ok
   bool model_ok = true; 
+
+  // thread-safety interface for F and S when set by user
+  std::shared_ptr<std::mutex> mutex_S_ptr;
+  std::shared_ptr<std::mutex> mutex_F_ptr;
 
   // Visualization attributes
   cv::Mat base_im; 

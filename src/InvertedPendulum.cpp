@@ -15,16 +15,24 @@ InvertedPendulum::InvertedPendulum()
   create_base_image(); 
   cv::namedWindow(window_name); 
   cv::moveWindow(window_name, 3900,60);
+
+  // create mutex-objects on the heap for thread-safe interface to set forces
+  mutex_S_ptr.reset(new std::mutex);
+  mutex_F_ptr.reset(new std::mutex); 
 }
 
 void InvertedPendulum::setForce(const double& f)
 {
+  mutex_F_ptr->lock(); 
   F = f; 
+  mutex_F_ptr->unlock();
 }
 
 void InvertedPendulum::setDisturbanceForce(const double& s)
 {
+  mutex_S_ptr->lock();
   S = s; 
+  mutex_S_ptr->unlock(); 
 }
 
 void InvertedPendulum::initialize(const std::vector<double>& x0)
@@ -37,7 +45,7 @@ void InvertedPendulum::operator()(const std::vector<double> &x, std::vector<doub
   /*
   * x = (x, x', theta, theta')
   */
- std::vector<double> x_ = x; 
+  std::vector<double> x_ = x; 
   
   dxdt[0] = x_[1]; // x'
   dxdt[2] = x_[3]; // theta'
@@ -85,31 +93,15 @@ void InvertedPendulum::simulate(double dt)
   while(model_ok)
   {
     auto start = std::chrono::system_clock::now();
+    mutex_F_ptr->lock();
+    mutex_S_ptr->lock();
     size_t steps = boost::numeric::odeint::integrate(*this,state,0.0,dt,dt/15);
+    mutex_F_ptr->unlock();
+    mutex_S_ptr->unlock();
     auto intergrate_end = std::chrono::system_clock::now();
     std::chrono::duration<double> diff = intergrate_end - start;
     auto sleep_time = sim_step_time - diff;
     std::this_thread::sleep_for(sleep_time);
-    /*if(state[0] < l_track/3 && state[0] > -l_track/3)
-    {
-      if(state[1] > 0)
-      {
-        setForce(1.8);
-      }
-      if(state[1] < 0)
-      {
-        setForce(-1.8);
-      }
-      
-    }
-    else
-    {
-      setForce(0);
-    }*/
-    /*if(state[0] > l_track/3)
-    {
-      setForce(0);
-    }*/
   }
   visu_thread.join(); 
 }
