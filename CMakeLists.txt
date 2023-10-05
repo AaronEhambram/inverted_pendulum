@@ -8,7 +8,7 @@ find_package(Boost REQUIRED)
 
 # set(OpenCV_DIR "/home/ehambram/workspaces/libraries/OpenCV/opencv-4.5.1/build") // build on HP
 # find_package(OpenCV 4.5.1 REQUIRED)
-set(OpenCV_DIR "/home/ehambram/workspaces/libraries/opencv/opencv-3.4.13/build")
+set(OpenCV_DIR "/home/ehambram/workspaces/libraries/opencv/opencv-4.x/build")
 find_package(OpenCV REQUIRED)
 
 find_package (Threads REQUIRED)
